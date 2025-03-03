@@ -1,0 +1,19 @@
+# 環境変数などの秘密情報
+.env
+
+# コンパイル済みバイナリ
+backend/backend.exe
+backend/*.exe
+backend/*.out
+
+# ビルド用のフォルダ
+build/
+node_modules/
+
+# Docker 関連
+backend/Dockerfile
+backend/config/
+
+# Go の一時ファイル（キャッシュ）
+*.test
+*.log
