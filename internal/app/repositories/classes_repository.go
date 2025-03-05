@@ -3,7 +3,7 @@ package repositories
 import (
 	"backend/internal/app/models"
 	"gorm.io/gorm"
-	"backend/internal/db"
+	"backend/internal/database"
 	"fmt"
 	"log"
 
@@ -21,13 +21,14 @@ type classesRepository struct {
 }
 
 func NewClassRepository(db *gorm.DB) ClassesRepository {
-	return &classesRepository{db}
+	return &classesRepository{db: database.GetDB()}
+
 }
 
 func (r *classesRepository ) GetClasses(filter *models.UserDetail) ([]models.Classes, error) {
 	var classes []models.Classes
 
-	query := db.DB.Select("class_name", "class_id", "is_mandatory", "instructor", "location", "schedule")
+	query := r.db.Select("class_name", "class_id", "is_mandatory", "instructor", "location", "schedule")
 	if filter != nil {
 		query = query.Where("faculty = ?", filter.Faculty).Or("faculty = ?", "全学部")
 	}
@@ -39,10 +40,10 @@ func (r *classesRepository ) GetClasses(filter *models.UserDetail) ([]models.Cla
 	return classes, nil
 }
 
-func (r *classesRepository)GetUserClasses(userid string) ([]models.UserClasses, error) {
+func (r *classesRepository) GetUserClasses(userid string) ([]models.UserClasses, error) {
 	var userClasses []models.UserClasses
 
-	query := db.DB.Select("class_name", "class_id", "is_mandatory", "instructor", "location", "schedule")
+	query := r.db.Select("class_name", "class_id", "is_mandatory", "instructor", "location", "schedule")
 	if userid != "" {
 		query = query.Where("user_id = ?", userid)
 		log.Println(query)
@@ -58,7 +59,7 @@ func (r *classesRepository)GetUserClasses(userid string) ([]models.UserClasses, 
 
 func (r *classesRepository) Create(userClass *models.UserClasses) error {
 
-	err := db.DB.Create(userClass).Error
+	err := r.db.Create(userClass).Error
 	if err != nil {
 		log.Println("userClassのレコード作成失敗", err)
 		return err

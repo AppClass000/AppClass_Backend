@@ -1,35 +1,21 @@
-package router
+package routers
 
 import (
-	"backend/controllers"
-
 	"github.com/gin-gonic/gin"
+	"backend/internal/handlers"
+	"backend/pkg/middleware"
 )
 
-func SignUproute(r *gin.Engine) {
-	r.POST("/signup", controllers.SignUp)
-}
+func NewUserRouter(handler handlers.UserHandler) *gin.Engine {
 
-func UserDetailroute(r *gin.RouterGroup) {
-	r.POST("/userdetail", controllers.ResponseClasses)
-}
+	router := gin.Default()
+    router.POST("/signup",handler.SignUp)
+	router.POST("/login",handler.Login)
+	
+	
+	api := router.Group("/api")
+	api.Use(middleware.AuthMiddleware())
 
-func ResponseJWTroute(r *gin.Engine) {
-	r.POST("/login", controllers.ResponseJWT)
-}
-
-func RegisterClassesroute(r *gin.RouterGroup) {
-	r.POST("/classesregister", controllers.RegisterUserClasses)
-}
-
-func GetUserClasssesroute(r *gin.RouterGroup) {
-	r.GET("/userclasses", controllers.ResponseUserClasses)
-}
-
-func GetScheduleDataroute(r *gin.RouterGroup) {
-	r.GET("/schedule", controllers.GetScheduleData)
-}
-
-func CheckToolAPI(r *gin.RouterGroup) {
-	r.POST("/checktool")
+	
+	return router
 }

@@ -1,11 +1,10 @@
-package routes
+package middleware
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )

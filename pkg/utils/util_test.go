@@ -12,7 +12,7 @@ import (
 )
 
 func TestGenerateJWT(t *testing.T) {
-	envPath := "C:/project/AppClass/backend/.env"
+	envPath := "/home/level/project/AppClass/backend/config/.env"
 	err := godotenv.Load(envPath)
 	if err != nil {
 		log.Println(".envファイルを読み込めませんでした:", err)

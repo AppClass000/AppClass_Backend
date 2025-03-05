@@ -1,16 +1,23 @@
 package main
 
 import (
-	"backend/database"
-	"backend/routes"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"backend/internal/app/repositories"
+	"backend/internal/app/servises"
+	"backend/internal/database"
+	"backend/internal/handlers"
+	"backend/internal/routers"
 	"log"
+	"github.com/gin-contrib/cors"
 )
 
 func main() {
 	database.InitDB()
-	router := gin.Default()
+    userReposirory := repositories.NewUserRepository(database.DB)
+	userServise :=servises.NewUserServise(&userReposirory)
+	userHandler := handlers.NewUserHandler(userServise)
+
+	router:= routers.NewUserRouter(userHandler)
+
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
@@ -32,15 +39,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	api := router.Group("/api", routes.AuthMiddleware())
-
-	routes.SignUproute(router)
-	routes.ResponseJWTroute(router)
-	routes.GetUserClasssesroute(api)
-	routes.UserDetailroute(api)
-	routes.GetScheduleDataroute(api)
-	routes.RegisterClassesroute(api)
-
+	
 	port := ":8080"
 	if err := router.Run(port); err != nil {
 		log.Fatalf("サーバー起動に失敗: %v", err)
