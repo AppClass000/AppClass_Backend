@@ -1,23 +1,21 @@
 package main
 
 import (
-	"backend/internal/app/repositories"
-	"backend/internal/app/servises"
+
+	"backend/internal/containers"
 	"backend/internal/database"
-	"backend/internal/handlers"
 	"backend/internal/routers"
 	"log"
+
 	"github.com/gin-contrib/cors"
 )
 
 func main() {
 	database.InitDB()
-    userReposirory := repositories.NewUserRepository(database.DB)
-	userServise :=servises.NewUserServise(&userReposirory)
-	userHandler := handlers.NewUserHandler(userServise)
+    
+	app := containers.NewAppContainer()
 
-	router:= routers.NewUserRouter(userHandler)
-
+	router := routers.NewAppRouter(app)
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
