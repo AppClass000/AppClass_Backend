@@ -1,21 +1,29 @@
 package routers
 
 import (
-	"github.com/gin-gonic/gin"
-	"backend/internal/handlers"
+	"backend/internal/containers"
 	"backend/pkg/middleware"
+
+	"github.com/gin-gonic/gin"
 )
 
-func NewUserRouter(handler handlers.UserHandler) *gin.Engine {
 
+
+func NewAppRouter(app *containers.AppContainer) *gin.Engine {
 	router := gin.Default()
-    router.POST("/signup",handler.SignUp)
-	router.POST("/login",handler.Login)
-	
-	
-	api := router.Group("/api")
-	api.Use(middleware.AuthMiddleware())
 
-	
+	user := router.Group("/user")
+	{
+		user.POST("/signup",app.UserHandler.SignUp)
+		user.POST("/login",app.UserHandler.Login)
+	}
+
+	classes := router.Group("/classes")
+	classes.Use(middleware.AuthMiddleware())
+	{
+		classes.POST("/classes",app.ClassesHandler.ViewUserClasses)
+		classes.POST("/schedule",app.ClassesHandler.ViewUserSchedule)
+	}
+
 	return router
 }

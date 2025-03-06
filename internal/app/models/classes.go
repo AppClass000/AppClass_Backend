@@ -21,3 +21,14 @@ type UserClasses struct {
 	IsIntroductory int    `gorm:"column:is_introductory"`
 	IsCommon       int    `gorm:"column:is_common"`
 }
+
+type ClassesDetail struct {
+	ID              int    `gorm:"primaryKey"`
+	ClassID        int    `gorm:"not null"`
+	ClassName      string `gorm:"type:varchar(200)"`
+	IsCore         bool   `gorm:"not null"`
+	IsIntroductory bool   `gorm:"not null"`
+	IsCommon       bool   `gorm:"not null"`
+	Genre          string `gorm:"type:varchar(50)"`
+	Semester       string `gorm:"type:varchar(2)"`
+}

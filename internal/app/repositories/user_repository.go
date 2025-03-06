@@ -3,7 +3,6 @@ package repositories
 
 import (
 	"backend/internal/app/models"
-	"backend/internal/database"
 	"gorm.io/gorm"
 	"fmt"
 )
@@ -20,7 +19,7 @@ type userRepository struct {
 }
 
 func NewUserRepository(db *gorm.DB) UserRepository {
-	return &userRepository{db: database.GetDB()}
+	return &userRepository{db:db}
 }
 
 func (r *userRepository) GetUserByEmail(email string) (*models.Users, error) {

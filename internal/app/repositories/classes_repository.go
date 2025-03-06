@@ -3,15 +3,14 @@ package repositories
 import (
 	"backend/internal/app/models"
 	"gorm.io/gorm"
-	"backend/internal/database"
 	"fmt"
 	"log"
 
 )
 
 type ClassesRepository interface {
-	GetClasses(filter *models.UserDetail) ([]models.Classes,error)
-	GetUserClasses(userid string) ([]models.UserClasses, error)
+	GetUserClasses(filter *models.UserDetail) ([]models.Classes,error)
+	GetRegisteredClasses(userid string) ([]models.ClassesDetail, error)
 	Create(userClass *models.UserClasses) error
 }
 
@@ -21,16 +20,15 @@ type classesRepository struct {
 }
 
 func NewClassRepository(db *gorm.DB) ClassesRepository {
-	return &classesRepository{db: database.GetDB()}
-
+	return &classesRepository{db: db}
 }
 
-func (r *classesRepository ) GetClasses(filter *models.UserDetail) ([]models.Classes, error) {
+func (r *classesRepository ) GetUserClasses(filter *models.UserDetail) ([]models.Classes, error) {
 	var classes []models.Classes
 
 	query := r.db.Select("class_name", "class_id", "is_mandatory", "instructor", "location", "schedule")
 	if filter != nil {
-		query = query.Where("faculty = ?", filter.Faculty).Or("faculty = ?", "全学部")
+		query = query.Where("faculty = ? or faculty = ?",filter.Faculty,"全学部")
 	}
 	err := query.Find(&classes).Error
 	if err != nil {
@@ -40,20 +38,20 @@ func (r *classesRepository ) GetClasses(filter *models.UserDetail) ([]models.Cla
 	return classes, nil
 }
 
-func (r *classesRepository) GetUserClasses(userid string) ([]models.UserClasses, error) {
-	var userClasses []models.UserClasses
+func (r *classesRepository) GetRegisteredClasses(userid string) ([]models.ClassesDetail, error) {
+	var RegisteredClasses []models.ClassesDetail
 
-	query := r.db.Select("class_name", "class_id", "is_mandatory", "instructor", "location", "schedule")
+	query := r.db.Select("class_name", "class_id", "is_mandatory", "is_core", "is_introductory", "is_common")
 	if userid != "" {
 		query = query.Where("user_id = ?", userid)
-		log.Println(query)
+		log.Println("Executing SQL",query.Statement.SQL.String())
 	}
-	err := query.Find(&userClasses).Error
+	err := query.Find(&RegisteredClasses).Error
 	if err != nil {
 		return nil, fmt.Errorf("ユーザー授業情報を取得できませんでした")
 	}
 
-	return userClasses, nil
+	return RegisteredClasses, nil
 
 }
 

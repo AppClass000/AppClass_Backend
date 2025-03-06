@@ -2,23 +2,23 @@ package handlers
 
 import (
 	"backend/internal/app/models"
-	"backend/internal/app/servises"
+	"backend/internal/app/services"
 	"backend/pkg/utils"
 	"log"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
-
 type UserHandler struct {
-	serv servises.UserServise
+	serv services.UserServise
 }
 
-func NewUserHandler (serv servises.UserServise) UserHandler{
+func NewUserHandler(serv services.UserServise) UserHandler {
 	return UserHandler{serv: serv}
 }
 
-func (h *UserHandler)SignUp(c *gin.Context) {
+func (h *UserHandler) SignUp(c *gin.Context) {
 	var input models.Users
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
@@ -32,8 +32,8 @@ func (h *UserHandler)SignUp(c *gin.Context) {
 
 	if err := h.serv.ResisterUser(&input); err != nil {
 		log.Println("ユーザー登録エラー")
-		c.JSON(http.StatusInternalServerError,gin.H{
-			"error":"missing register User to datadase",
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "missing register User to datadase",
 		})
 	}
 
@@ -42,24 +42,24 @@ func (h *UserHandler)SignUp(c *gin.Context) {
 
 func (h *UserHandler) Login(c *gin.Context) {
 	var ReqUser struct {
-		email    string  
+		email    string
 		password string
 	}
-	if err := c.ShouldBindJSON(&ReqUser);err != nil {
+	if err := c.ShouldBindJSON(&ReqUser); err != nil {
 		log.Println(ReqUser)
-		c.JSON(http.StatusBadRequest,gin.H{
-			"error":"Invalid User Request",
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid User Request",
 		})
 	}
 
-	JWTtoken,err := h.serv.ResponseUserIDJWT(ReqUser.email,ReqUser.password)
+	JWTtoken, err := h.serv.ResponseUserIDJWT(ReqUser.email, ReqUser.password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError,gin.H{
-			"error":"missing JWT generation",
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "missing JWT generation",
 		})
 	}
-	c.SetCookie("jwt",JWTtoken,3600,"/","localhost",false,true)
-	c.JSON(http.StatusOK,gin.H{
-		"message":"success Generate JWT",
+	c.SetCookie("jwt", JWTtoken, 3600, "/", "localhost", false, true)
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success Generate JWT",
 	})
 }
