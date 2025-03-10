@@ -8,9 +8,19 @@ import (
 
 )
 
+
+type UserDetail struct {
+	UserID    int
+	Faculty    string 
+	Department string 
+	Course     string
+	
+}
+
 type ClassesRepository interface {
-	GetUserClasses(filter *models.UserDetail) ([]models.Classes,error)
-	GetRegisteredClasses(userid string) ([]models.ClassesDetail, error)
+	GetUserClasses(userdetail *UserDetail) ([]models.Classes,error)
+	GetRegisteredClasses(userid string) ([]models.UserClasses, error)
+	GetClassesByClassID(classIDList []int) ([]models.Classes, error)
 	Create(userClass *models.UserClasses) error
 }
 
@@ -23,12 +33,24 @@ func NewClassRepository(db *gorm.DB) ClassesRepository {
 	return &classesRepository{db: db}
 }
 
-func (r *classesRepository ) GetUserClasses(filter *models.UserDetail) ([]models.Classes, error) {
+func (r *classesRepository ) GetUserClasses(userdetail *UserDetail) ([]models.Classes, error) {
 	var classes []models.Classes
 
-	query := r.db.Select("class_name", "class_id", "is_mandatory", "instructor", "location", "schedule")
-	if filter != nil {
-		query = query.Where("faculty = ? or faculty = ?",filter.Faculty,"全学部")
+	query := r.db.Select(
+		"class_name", 
+		"class_id",
+		"is_mandatory",
+		"is_core","is_",
+		"is_introductory",
+		"is_common",
+		"genre",
+		"semester",
+		"instructor",
+		"location",
+		"schedule",
+	)
+	if userdetail.Faculty != "" {
+		query = query.Where("faculty = ? or faculty = ?",userdetail.Faculty,"全学部")
 	}
 	err := query.Find(&classes).Error
 	if err != nil {
@@ -38,10 +60,10 @@ func (r *classesRepository ) GetUserClasses(filter *models.UserDetail) ([]models
 	return classes, nil
 }
 
-func (r *classesRepository) GetRegisteredClasses(userid string) ([]models.ClassesDetail, error) {
-	var RegisteredClasses []models.ClassesDetail
+func (r *classesRepository) GetRegisteredClasses(userid string) ([]models.UserClasses, error) {
+	var RegisteredClasses []models.UserClasses
 
-	query := r.db.Select("class_name", "class_id", "is_mandatory", "is_core", "is_introductory", "is_common")
+	query := r.db.Select("class_name", "class_id","schedule")
 	if userid != "" {
 		query = query.Where("user_id = ?", userid)
 		log.Println("Executing SQL",query.Statement.SQL.String())
@@ -54,6 +76,26 @@ func (r *classesRepository) GetRegisteredClasses(userid string) ([]models.Classe
 	return RegisteredClasses, nil
 
 }
+
+
+func (r *classesRepository) GetClassesByClassID(classIDList []int) ([]models.Classes, error) {
+	var RegisteredClasses []models.Classes
+	if  len(classIDList) != 0 {
+		return nil,fmt.Errorf("list of classID is 0")
+	}
+
+	query := r.db.Select("is_core","is_introductory","is_common","genre").Where("class_id IN",classIDList)
+
+	log.Println("Executing SQL",query.Statement.SQL.String())
+	
+	err := query.Find(&RegisteredClasses).Error
+	if err != nil {
+		return nil, fmt.Errorf("ユーザー授業情報を取得できませんでした")
+	}
+
+	return RegisteredClasses, nil
+}
+
 
 func (r *classesRepository) Create(userClass *models.UserClasses) error {
 

@@ -1,15 +1,17 @@
 package utils
 
 import (
+	"backend/config"
+	"backend/internal/app/repositories"
+	"backend/internal/database"
 	"fmt"
 	"log"
-	"os"
+	"net/http"
 	"time"
-	"github.com/gin-contrib/sessions"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -26,22 +28,13 @@ func GenerateUniqueUserID() string {
 	return uuid.NewString()
 }
 
-func IsUserLoggedIn(c *gin.Context) (string, bool) {
-	session := sessions.Default(c)
-	userID, ok := session.Get("user_id").(string)
-	return userID, ok
-}
 
 func GenerateJWT(userID string) (string, error) {
-	envPath := "C:/project/AppClass/backend/.env"
-	err := godotenv.Load(envPath)
-	if err != nil {
-		log.Println(".envファイルを読み込めませんでした:", err)
-	}
+
+	config.LoadEnv()
 
 	log.Println("これがuserid", userID)
-	var jwtSecretKey = os.Getenv("JWTSECRETKEY")
-	log.Println("これが秘密鍵", jwtSecretKey)
+	var jwtSecretKey = config.GetEnv("JWTSECRETKEY","")
 	if jwtSecretKey == "" {
 		log.Fatalf("秘密鍵が取得できませんでした")
 	}
@@ -73,5 +66,46 @@ func CreateJWTResponse(userID string) (bool, string) {
 	loggedIn = true
 
 	return loggedIn, tokenString
+}
 
+func VaridateJWT(tokenString string) bool {
+	config.LoadEnv()
+
+	token, err := jwt.Parse(tokenString,func(t *jwt.Token) (interface{}, error) {
+		return []byte(config.GetEnv("JWTSECRETKEY","")),nil
+	})
+	if err != nil || !token.Valid{
+		log.Println("token parse error:",err)
+		return false
+	}
+	return true
+}
+
+
+func GetUserDetail(userID string) (*repositories.UserDetail,error)  {
+	var userDetail repositories.UserDetail
+	db := database.GetDB()
+
+	if err := db.Select("user_id",userID).First(&userDetail).Error;err != nil {
+		return nil,err 
+	}
+	return &userDetail,nil 
+}
+
+func CkeckAuth(c *gin.Context) {
+	tokenString,err := c.Cookie("jwt")
+	if  err != nil {
+		c.JSON(http.StatusBadRequest,gin.H{
+			"message":"unauthorized",
+		})
+	}
+	ok := VaridateJWT(tokenString)
+	if   !ok {
+		c.JSON(http.StatusInternalServerError,gin.H{
+			"error":"JWT Invalid",
+		})
+	}
+	c.JSON(http.StatusOK,gin.H{
+		"message":"authorized",
+	})
 }

@@ -5,6 +5,7 @@ import (
 	"backend/internal/app/repositories"
 	"backend/pkg/utils"
 	"fmt"
+	"log"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -40,6 +41,9 @@ func (s *userServise) HashUserPassword(User *models.Users) (*models.Users, error
 }
 
 func (s *userServise) ResponseUserIDJWT(Email string, password string) (string, error) {
+	if Email == "" {
+		log.Println("email is  not exist")
+	}
 	users, err := s.rep.GetUserByEmail(Email)
 	if err != nil {
 		fmt.Errorf("missing Get User By Email %w", err)

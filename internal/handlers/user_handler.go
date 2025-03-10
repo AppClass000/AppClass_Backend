@@ -42,21 +42,24 @@ func (h *UserHandler) SignUp(c *gin.Context) {
 
 func (h *UserHandler) Login(c *gin.Context) {
 	var ReqUser struct {
-		email    string
-		password string
+		Email    string  `json:"email"`
+		Password string  `json':"password"`
 	}
+
 	if err := c.ShouldBindJSON(&ReqUser); err != nil {
 		log.Println(ReqUser)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid User Request",
 		})
+		return 
 	}
 
-	JWTtoken, err := h.serv.ResponseUserIDJWT(ReqUser.email, ReqUser.password)
+	JWTtoken, err := h.serv.ResponseUserIDJWT(ReqUser.Email, ReqUser.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "missing JWT generation",
 		})
+		return
 	}
 	c.SetCookie("jwt", JWTtoken, 3600, "/", "localhost", false, true)
 	c.JSON(http.StatusOK, gin.H{

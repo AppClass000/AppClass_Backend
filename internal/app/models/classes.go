@@ -5,10 +5,18 @@ type Classes struct {
 	Id          uint
 	ClassName   string `gorm:"column:class_name"`
 	ClassId     int    `gorm:"column:class_id"`
+	Faculty    string `gorm:"not null"`
+	Department string 
+	Course     string
 	IsMandatory int    `gorm:"column:is_mandatory"`
+	IsCore         bool    `gorm:"column:is_core"`
+	IsIntroductory bool    `gorm:"column:is_introductory"`
+	IsCommon       bool    `gorm:"column:is_common"`
 	Instructor  string `gorm:"column:instructor"`
 	Location    string `gorm:"column:location"`
 	Schedule    string `gorm:"column:schedule"`
+	Genre          string `gorm:"type:varchar(50)"`
+	Semester       string `gorm:"type:varchar(2)"`
 }
 
 type UserClasses struct {
@@ -16,10 +24,7 @@ type UserClasses struct {
 	UserId      string
 	ClassName   string `gorm:"column:class_name"`
 	ClassId     int    `gorm:"column:class_id"`
-	IsMandatory int    `gorm:"column:is_mandatory"`
-	IsCore         int    `gorm:"column:is_core"`
-	IsIntroductory int    `gorm:"column:is_introductory"`
-	IsCommon       int    `gorm:"column:is_common"`
+	Schedule    string `gorm:"column:schedule"`
 }
 
 type ClassesDetail struct {

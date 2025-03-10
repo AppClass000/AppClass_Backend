@@ -3,14 +3,20 @@ package services
 import (
 	"backend/internal/app/models"
 	"backend/internal/app/repositories"
-	"log"
 	"errors"
+	"log"
 )
+
+type RegisteredList struct {
+	categoly           string
+	classIDs []int
+}
 
 type ClassesServise interface {
 	RegisterUserClasses(classes *models.UserClasses) error
-	ResponseUserClasses(filter *models.UserDetail) []models.Classes
-	ResponseRegisteredClasses(userid string) []models.ClassesDetail
+	ResponseUserClasses(filter *repositories.UserDetail) []models.Classes
+	ResponseRegisteredClasses(userid string) []models.UserClasses
+	CheckRegiseredClasses(userid string) (bool, []RegisteredList,error)
 }
 
 type classesServise struct {
@@ -34,7 +40,7 @@ func (s *classesServise) RegisterUserClasses(classes *models.UserClasses) error 
 	return nil
 }
 
-func (s *classesServise) ResponseUserClasses(filter *models.UserDetail) []models.Classes {
+func (s *classesServise) ResponseUserClasses(filter *repositories.UserDetail) []models.Classes {
 	classes, err := s.rep.GetUserClasses(filter)
 	if err != nil {
 		return nil
@@ -42,7 +48,7 @@ func (s *classesServise) ResponseUserClasses(filter *models.UserDetail) []models
 	return classes
 }
 
-func (s *classesServise) ResponseRegisteredClasses(userid string) []models.ClassesDetail {
+func (s *classesServise) ResponseRegisteredClasses(userid string) []models.UserClasses {
 	classes, err := s.rep.GetRegisteredClasses(userid)
 	if err != nil {
 		return nil
@@ -50,44 +56,70 @@ func (s *classesServise) ResponseRegisteredClasses(userid string) []models.Class
 	return classes
 }
 
-// func CheckUserResitered(c *gin.Context) {
-// 	var IsCoreList []int
-// 	var IsIntroductoryList []int
-// 	var IsCommonList []int
+func (s *classesServise) CheckRegiseredClasses(userid string) (bool, []RegisteredList,error) {
+	categolyMap := map[string][]int{
+		"IsIntroductoryList":{},
+		"IsCoreList":{},
+		"IsCommonList":{},
+	}
 
-//  	UserID, ok := c.Get("userID")
-//  	if !ok {
-//  		log.Panic("userID don't exist")
-//  	}
-// 	UserId, ok := UserID.(string)
-//  	if !ok {
-//  		log.Println("mistake convert UserID to string")
-//  	}
+	userClasses, err := s.rep.GetRegisteredClasses(userid)
+	if err != nil {
+		log.Println("GetRegisteredClasses in error :", err)
+		return false, []RegisteredList{},err
+	}
 
-// // 	userClasses, err := models.GetUserClasses(UserId)
-// // 	if err != nil {
-// // 		log.Println("Getting userCLasses error")
-// // 	}
+	classIDlist := make([]int,len(userClasses))
+	for i,uc := range userClasses {
+		classIDlist[i] = uc.ClassId
+	}
 
-// // 	for i :=0; i< len(userClasses); i++ {
-// // 		if userClasses[i].IsCore == 1 {
-// // 			IsCoreList := append(IsCoreList,userClasses[i].IsCore)
-// // 		}
-// // 	    if userClasses[i].IsIntroductory == 1 {
-// // 			IsIntroductoryList := append(IsIntroductoryList,userClasses[i].IsIntroductory)
-// // 		}
-// // 	    if userClasses[i].IsCommon == 1 {
-// // 	    	IsCommonList := append(IsCommonList,userClasses[i].IsCommon)
-// // 	    }
-// // 	}
+	classes, err := s.rep.GetClassesByClassID(classIDlist)
+	if err != nil {
+		log.Println("GetClassesByClassID in error:", err)
+		return false, []RegisteredList{},err
+	}
 
-// // 	userDetail,err := models.GetUserDetail(database.DB,UserId)
-// // 	if err != nil {
-// // 		log.Println("error of GetUserDetail:",err)
-// // 	}
-// // 	if userDetail.Faculty == "工学部" {
+	for _,class := range classes {
+		switch {
+		case class.IsIntroductory:
+			categolyMap["IsIntroductoryList"] = append(categolyMap["IsIntroductoryList"],class.ClassId)
+		case class.IsCore:
+			categolyMap["IsCore"] = append(categolyMap["IsCore"],class.ClassId)
+		case class.IsCommon:
+			categolyMap["IsCommon"] = append(categolyMap["IsCommon"],class.ClassId)
+		}
+	}
 
-// // 	}
 
-// // }
-// // //
+	result,registeredList := varidataLists(categolyMap)
+	if result {
+		return result,registeredList,nil
+	}
+	return false,[]RegisteredList{},err
+}
+
+
+
+func varidataLists(categolyMap map[string][]int) (bool, []RegisteredList) {
+	var registeredList []RegisteredList
+
+	minRequirement := map[string]int {
+		"IsIntroductory":2,
+		"IsCore":        3,
+		"IsCommon":      5,
+	}
+
+
+	for categoly,classIDlist := range categolyMap {
+		if len(classIDlist) < minRequirement[categoly] {
+			registeredList = append(registeredList,
+				 RegisteredList{
+					categoly: categoly,
+					classIDs: classIDlist,
+			})
+		}
+	}
+
+	return len(registeredList) == 0,registeredList
+}

@@ -1,17 +1,16 @@
 package repositories
 
-
 import (
 	"backend/internal/app/models"
-	"gorm.io/gorm"
+	"backend/internal/database"
 	"fmt"
+
+	"gorm.io/gorm"
 )
 
 type UserRepository interface {
 	GetUserByEmail(email string) (*models.Users, error)
 	Create(user *models.Users) error 
-    GetUserDetail(userID string) (*models.UserDetail,error)  
-
 }
 
 type userRepository struct {
@@ -37,9 +36,9 @@ func (r *userRepository) Create(user *models.Users) error {
 	return nil
 }
 
-func (r *userRepository) GetUserDetail(userID string) (*models.UserDetail,error)  {
+func  GetUserDetail(userID string) (*models.UserDetail,error)  {
 	var userDetail models.UserDetail
-	if err := r.db.Select("user_id",userID).First(&userDetail).Error;err != nil {
+	if err := database.DB.Select("user_id",userID).First(&userDetail).Error;err != nil {
 		return nil,err 
 	}
 	return &userDetail,nil 
