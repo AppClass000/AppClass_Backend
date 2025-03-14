@@ -22,6 +22,7 @@ type ClassesRepository interface {
 	GetRegisteredClasses(userid string) ([]models.UserClasses, error)
 	GetClassesByClassID(classIDList []int) ([]models.Classes, error)
 	Create(userClass *models.UserClasses) error
+	Delete(classID int) error
 }
 
 
@@ -40,7 +41,7 @@ func (r *classesRepository ) GetUserClasses(userdetail *UserDetail) ([]models.Cl
 		"class_name", 
 		"class_id",
 		"is_mandatory",
-		"is_core","is_",
+		"is_core",
 		"is_introductory",
 		"is_common",
 		"genre",
@@ -63,7 +64,7 @@ func (r *classesRepository ) GetUserClasses(userdetail *UserDetail) ([]models.Cl
 func (r *classesRepository) GetRegisteredClasses(userid string) ([]models.UserClasses, error) {
 	var RegisteredClasses []models.UserClasses
 
-	query := r.db.Select("class_name", "class_id","schedule")
+	query := r.db.Select("class_name", "class_id","schedule","location","instructor")
 	if userid != "" {
 		query = query.Where("user_id = ?", userid)
 		log.Println("Executing SQL",query.Statement.SQL.String())
@@ -104,6 +105,20 @@ func (r *classesRepository) Create(userClass *models.UserClasses) error {
 		log.Println("userClassのレコード作成失敗", err)
 		return err
 	}
+
+	return nil
+}
+
+
+func (r *classesRepository) Delete(classID int) error {
+	var userClass models.UserClasses
+	query := r.db.Where("class_id = ?",classID)
+
+	err := query.Delete(&userClass).Error
+	if err != nil {
+	  	log.Println("userClassのレコード削除失敗", err)
+		return err
+	} 
 
 	return nil
 }

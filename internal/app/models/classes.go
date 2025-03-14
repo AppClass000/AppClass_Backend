@@ -2,9 +2,9 @@ package models
 
 
 type Classes struct {
-	Id          uint
+	ID          uint
 	ClassName   string `gorm:"column:class_name"`
-	ClassId     int    `gorm:"column:class_id"`
+	ClassID     int    `gorm:"column:class_id"`
 	Faculty    string `gorm:"not null"`
 	Department string 
 	Course     string
@@ -21,10 +21,12 @@ type Classes struct {
 
 type UserClasses struct {
 	Id          uint
-	UserId      string
+	UserID      string
 	ClassName   string `gorm:"column:class_name"`
-	ClassId     int    `gorm:"column:class_id"`
+	ClassID     int    `gorm:"column:class_id"`
 	Schedule    string `gorm:"column:schedule"`
+	Instructor  string `gorm:"column:instructor"`
+	Location    string `gorm:"column:location"`
 }
 
 type ClassesDetail struct {

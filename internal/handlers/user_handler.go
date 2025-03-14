@@ -25,8 +25,8 @@ func (h *UserHandler) SignUp(c *gin.Context) {
 		return
 	}
 
-	input.UserId = utils.GenerateUniqueUserID()
-	if input.UserId == "" {
+	input.UserID = utils.GenerateUniqueUserID()
+	if input.UserID == "" {
 		log.Printf("useridがありません")
 	}
 
@@ -65,4 +65,41 @@ func (h *UserHandler) Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success Generate JWT",
 	})
+}
+
+
+func (h *UserHandler) Logout(c *gin.Context) {
+	c.SetCookie("jwt", "", 0, "/", "localhost", false, true)
+	c.JSON(http.StatusOK,gin.H{
+		"message":"logout success",
+	})
+}
+
+func (h *UserHandler) ResponseUserDetail(c *gin.Context) {
+	value, exist := c.Get("userID")
+	if !exist {
+		log.Println("UserIDがありません:ResponseUserDeail")
+	}
+	userId, ok := value.(string)
+	if !ok {
+		log.Println("Invalid UserID Type")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid userid",
+		})
+		return
+	}
+	userDetail,err := utils.GetUserDetail(userId)
+	if err != nil {
+		log.Println("missing get userDetail by userid:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "missing get userDetail by userid",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK,gin.H{
+		"message":"success",
+		"userdetail":userDetail,
+	})
+	
 }

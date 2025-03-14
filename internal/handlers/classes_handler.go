@@ -68,9 +68,45 @@ func (h *ClassesHandler) ViewUserClassesByUserID(c *gin.Context) {
 
 }
 
-
-
 func (h *ClassesHandler) RegisterClass(c *gin.Context) {
+	var userClass models.UserClasses
+	value, exist := c.Get("userID")
+	if !exist {
+		log.Println("UserIDがありません:classes_handler")
+	}
+	userId, ok := value.(string)
+	if !ok {
+		log.Println("Invalid UserID Type")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid userid",
+		})
+		return
+	}
+
+	err := c.ShouldBindJSON(&userClass)
+	if err != nil {
+		log.Println("missing Bind userClass:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "missing Bind userClass",
+		})
+		return
+	}	
+	userClass.UserID = userId
+
+	err = h.serv.RegisterUserClasses(&userClass)
+	if err != nil {
+		log.Println("occur error in registerUserClasses")
+		c.JSON(204, gin.H{
+			"error":     "This class is registered ",
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":     "registered success",
+	})
+}
+
+func (h *ClassesHandler) DeleteRegisteredClass(c *gin.Context) {
 	var userClass models.UserClasses
 
 	err := c.ShouldBindJSON(&userClass)
@@ -81,13 +117,17 @@ func (h *ClassesHandler) RegisterClass(c *gin.Context) {
 		})
 		return
 	}
-	err = h.serv.RegisterUserClasses(&userClass)
+	err = h.serv.DeleteRegisteredClasses(&userClass)
 	if err != nil {
-		log.Println("occur error in registerUserClasses")
+		log.Println("error in  deleteRegisteredClass:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error":"error in  deleteRegisteredClass:",
+		})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":     "registered success",
+		"message": "success delete  userClass",
 	})
 }
 

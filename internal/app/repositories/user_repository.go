@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"backend/internal/app/models"
-	"backend/internal/database"
 	"fmt"
 
 	"gorm.io/gorm"
@@ -34,12 +33,4 @@ func (r *userRepository) Create(user *models.Users) error {
 		return fmt.Errorf("ユーザー作成エラー:%w", err)
 	}
 	return nil
-}
-
-func  GetUserDetail(userID string) (*models.UserDetail,error)  {
-	var userDetail models.UserDetail
-	if err := database.DB.Select("user_id",userID).First(&userDetail).Error;err != nil {
-		return nil,err 
-	}
-	return &userDetail,nil 
 }

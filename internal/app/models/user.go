@@ -3,16 +3,19 @@ package models
 import "time"
 
 type Users struct {
-	Id       uint   `gorm:"primarykey"`
-	UserId   string `gorm:"unique;column:UserId"`
-	Name     string `gorm:"not null" json:"userName"`
-	Email    string `gorm:"unique;not null" json:"userEmail"`
-	Password string `gorm:"not null" json:"userPassword"`
+    ID        uint      `gorm:"primaryKey;autoIncrement"` 
+    UserID    string    `gorm:"column:user_id;unique"`
+    Name      string    `gorm:"column:name;not null"`
+    Email     string    `gorm:"column:email;unique;not null"`
+    Password  string    `gorm:"column:password;not null"`
+    CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
+    UpdatedAt time.Time `gorm:"column:updated_at;autoUpdateTime"`
 }
 
+
 type UserDetail struct {
-	Id         uint   `gorm:"primarykey"`
-	UserId     string `gorm:"primarykey"`
+	ID        uint   `gorm:"primarykey"`
+	UserID    string `gorm:"primarykey"`
 	Faculty    string `gorm:"not null"`
 	Department string `gorm:"not null"`
 	Course     string
@@ -26,5 +29,5 @@ type ReqUsers struct {
 }
 
 type RequestUserID struct {
-	ReqUserId string
+	ReqUserID string
 }

@@ -51,7 +51,7 @@ func (s *userServise) ResponseUserIDJWT(Email string, password string) (string, 
 	if users.Password != password {
 		fmt.Errorf("password is missing")
 	}
-	tokenstring, err := utils.GenerateJWT(users.UserId)
+	tokenstring, err := utils.GenerateJWT(users.UserID)
 	if err != nil {
 		fmt.Errorf("error in JWT generation")
 	}

@@ -3,8 +3,8 @@ package services
 import (
 	"backend/internal/app/models"
 	"backend/internal/app/repositories"
-	"errors"
 	"log"
+	"fmt"
 )
 
 type RegisteredList struct {
@@ -16,6 +16,7 @@ type ClassesServise interface {
 	RegisterUserClasses(classes *models.UserClasses) error
 	ResponseUserClasses(filter *repositories.UserDetail) []models.Classes
 	ResponseRegisteredClasses(userid string) []models.UserClasses
+	DeleteRegisteredClasses(userClass *models.UserClasses) error
 	CheckRegiseredClasses(userid string) (bool, []RegisteredList,error)
 }
 
@@ -28,10 +29,7 @@ func NewClassesServise(rep repositories.ClassesRepository) ClassesServise {
 }
 
 func (s *classesServise) RegisterUserClasses(classes *models.UserClasses) error {
-	if classes.UserId == "" {
-		log.Println("userID does not exist")
-		return errors.New("UserID is required")
-	}
+
 	err := s.rep.Create(classes)
 	if err != nil {
 		return err
@@ -56,6 +54,21 @@ func (s *classesServise) ResponseRegisteredClasses(userid string) []models.UserC
 	return classes
 }
 
+
+func (s *classesServise) DeleteRegisteredClasses(userClass *models.UserClasses) error {
+	classid := userClass.ClassID
+	if classid == 0 {
+	    return fmt.Errorf("ClassID is not exist")
+	}
+	err := s.rep.Delete(classid)
+	if err != nil {
+		log.Println("error in delete UserClass")
+		return err
+	}
+	return nil
+}
+
+
 func (s *classesServise) CheckRegiseredClasses(userid string) (bool, []RegisteredList,error) {
 	categolyMap := map[string][]int{
 		"IsIntroductoryList":{},
@@ -71,7 +84,7 @@ func (s *classesServise) CheckRegiseredClasses(userid string) (bool, []Registere
 
 	classIDlist := make([]int,len(userClasses))
 	for i,uc := range userClasses {
-		classIDlist[i] = uc.ClassId
+		classIDlist[i] = uc.ClassID
 	}
 
 	classes, err := s.rep.GetClassesByClassID(classIDlist)
@@ -83,11 +96,11 @@ func (s *classesServise) CheckRegiseredClasses(userid string) (bool, []Registere
 	for _,class := range classes {
 		switch {
 		case class.IsIntroductory:
-			categolyMap["IsIntroductoryList"] = append(categolyMap["IsIntroductoryList"],class.ClassId)
+			categolyMap["IsIntroductoryList"] = append(categolyMap["IsIntroductoryList"],class.ClassID)
 		case class.IsCore:
-			categolyMap["IsCore"] = append(categolyMap["IsCore"],class.ClassId)
+			categolyMap["IsCore"] = append(categolyMap["IsCore"],class.ClassID)
 		case class.IsCommon:
-			categolyMap["IsCommon"] = append(categolyMap["IsCommon"],class.ClassId)
+			categolyMap["IsCommon"] = append(categolyMap["IsCommon"],class.ClassID)
 		}
 	}
 

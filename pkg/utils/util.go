@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
@@ -86,24 +85,30 @@ func GetUserDetail(userID string) (*repositories.UserDetail,error)  {
 	var userDetail repositories.UserDetail
 	db := database.GetDB()
 
-	if err := db.Select("user_id",userID).First(&userDetail).Error;err != nil {
+	query := db.Select("faculty","department","course")
+
+	if err :=query.Where("user_id = ?",userID).First(&userDetail).Error;err != nil {
 		return nil,err 
 	}
+	log.Println("Executing SQL",query.Statement.SQL.String())
 	return &userDetail,nil 
 }
 
 func CkeckAuth(c *gin.Context) {
 	tokenString,err := c.Cookie("jwt")
-	if  err != nil {
+	if  tokenString == "" {
 		c.JSON(http.StatusBadRequest,gin.H{
 			"message":"unauthorized",
 		})
+		log.Println(tokenString,"cokkie debug log:",err)
+		return
 	}
 	ok := VaridateJWT(tokenString)
 	if   !ok {
 		c.JSON(http.StatusInternalServerError,gin.H{
 			"error":"JWT Invalid",
 		})
+		return
 	}
 	c.JSON(http.StatusOK,gin.H{
 		"message":"authorized",

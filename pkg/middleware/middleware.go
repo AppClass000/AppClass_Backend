@@ -56,7 +56,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		c.Set("userID", Claims.UserID)
 		value, exist := c.Get("userID")
 		if exist {
-			log.Println("useridです", value)
+			log.Println("useridです:", value)
 		} else {
 			log.Println("userID が Context にセットされていません")
 		}
