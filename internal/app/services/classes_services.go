@@ -56,6 +56,7 @@ func (s *classesServise) ResponseRegisteredClasses(userid string) []models.UserC
 
 
 func (s *classesServise) DeleteRegisteredClasses(userClass *models.UserClasses) error {
+	log.Println(userClass)
 	classid := userClass.ClassID
 	if classid == 0 {
 	    return fmt.Errorf("ClassID is not exist")

@@ -2,7 +2,7 @@ package routers
 
 import (
 	"backend/internal/containers"
-	"backend/pkg/middleware"
+	"backend/pkg/auth"
 	"backend/pkg/utils"
 
 	"github.com/gin-contrib/cors"
@@ -34,18 +34,20 @@ func NewAppRouter(app *containers.AppContainer) *gin.Engine {
 	}))
 
 	user := router.Group("/user")
-	api := router.Group("/api")
-	
+
+	authUser := user.Group("/")
+	authUser.Use(auth.AuthMiddleware())
+
 	user.POST("/signup",app.UserHandler.SignUp)
 	user.POST("/login",app.UserHandler.Login)
 	user.POST("/logout",app.UserHandler.Logout)
 	user.GET("/ckeckauth",utils.CkeckAuth)
 
-	api.GET("/userdetail",app.UserHandler.ResponseUserDetail).Use(middleware.AuthMiddleware())
-	
+	authUser.GET("/userdetail",app.UserHandler.ResponseUserDetail)
+	authUser.GET("profile",app.UserHandler.ResponseUserIDForProfile)
 
 	classes := router.Group("/classes")
-	classes.Use(middleware.AuthMiddleware())
+	classes.Use(auth.AuthMiddleware())
 	
 	
 	classes.POST("/register",app.ClassesHandler.RegisterClass)
@@ -55,7 +57,6 @@ func NewAppRouter(app *containers.AppContainer) *gin.Engine {
 	classes.GET("/schedule",app.ClassesHandler.ViewUserSchedule)
 	classes.GET("/checktool",app.ClassesHandler.CheckToolAPI)
 	
-	classes.GET("/userdetail",app.UserHandler.ResponseUserDetail)
 	
 	return router 
 }

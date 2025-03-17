@@ -117,6 +117,7 @@ func (h *ClassesHandler) DeleteRegisteredClass(c *gin.Context) {
 		})
 		return
 	}
+	log.Println(userClass)
 	err = h.serv.DeleteRegisteredClasses(&userClass)
 	if err != nil {
 		log.Println("error in  deleteRegisteredClass:", err)
@@ -183,3 +184,5 @@ func (h *ClassesHandler) CheckToolAPI(c *gin.Context) {
 	})
 
 }
+
+

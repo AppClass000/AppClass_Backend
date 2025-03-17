@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"backend/pkg/auth"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
@@ -22,7 +23,7 @@ func TestGenerateJWT(t *testing.T) {
 
 	user_id := "222"
 
-	tokenString, err := GenerateJWT(user_id)
+	tokenString, err := auth.GenerateJWT(user_id)
 	if err != nil {
 		t.Fatalf("GenerateJWTでエラー発生 %v", err)
 	}

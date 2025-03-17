@@ -2,7 +2,7 @@ package models
 
 
 type Classes struct {
-	ID          uint
+	ID          int
 	ClassName   string `gorm:"column:class_name"`
 	ClassID     int    `gorm:"column:class_id"`
 	Faculty    string `gorm:"not null"`
@@ -20,7 +20,7 @@ type Classes struct {
 }
 
 type UserClasses struct {
-	Id          uint
+	Id          int
 	UserID      string
 	ClassName   string `gorm:"column:class_name"`
 	ClassID     int    `gorm:"column:class_id"`

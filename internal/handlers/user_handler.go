@@ -103,3 +103,23 @@ func (h *UserHandler) ResponseUserDetail(c *gin.Context) {
 	})
 	
 }
+
+func (h *UserHandler) ResponseUserIDForProfile (c *gin.Context) {
+	value, exist := c.Get("userID")
+	if !exist {
+		log.Println("UserIDがありません:ResponseUserDeail")
+	}
+	userId, ok := value.(string)
+	if !ok {
+		log.Println("Invalid UserID Type")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid userid",
+		})
+		return
+	}
+	c.JSON(http.StatusOK,gin.H{
+		"message":"success",
+		"userid":userId,
+	})
+
+}
