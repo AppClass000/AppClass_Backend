@@ -28,6 +28,7 @@ func (h *UserHandler) SignUp(c *gin.Context) {
 	input.UserID = utils.GenerateUniqueUserID()
 	if input.UserID == "" {
 		log.Printf("useridがありません")
+		return
 	}
 
 	if err := h.serv.ResisterUser(&input); err != nil {
@@ -35,10 +36,24 @@ func (h *UserHandler) SignUp(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "missing register User to datadase",
 		})
+		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "ユーザー作成に成功しました"})
+
+	JWTtoken, err := h.serv.ResponseSignUpJTW(input.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "missing JWT generation",
+		})
+		return
+	}
+	c.SetCookie("jwt", JWTtoken, 3600, "/", "localhost", false, true)
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success Generate JWT and registered User",
+	})
 }
+
 
 func (h *UserHandler) Login(c *gin.Context) {
 	var ReqUser struct {
@@ -75,6 +90,42 @@ func (h *UserHandler) Logout(c *gin.Context) {
 	})
 }
 
+func (h *UserHandler) RegisterUserDetail (c *gin.Context) {
+	var userdetail models.UserDetail
+
+	userID,err := utils.VaridateUserID(c)
+	if err != nil {
+		log.Println("Invalid UserID Type")
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid userid",
+		})
+		return
+	}
+
+	err = c.ShouldBindJSON(&userdetail)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid userdetail",
+		})
+		return 
+	}
+	err = h.serv.RegisterUserDetail(&userdetail,userID)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid userdetail",
+		})
+		return 
+	}
+	
+	c.JSON(http.StatusOK,gin.H{
+		"message":"success",
+	})
+
+}
+
+
 func (h *UserHandler) ResponseUserDetail(c *gin.Context) {
 	value, exist := c.Get("userID")
 	if !exist {
@@ -104,22 +155,76 @@ func (h *UserHandler) ResponseUserDetail(c *gin.Context) {
 	
 }
 
-func (h *UserHandler) ResponseUserIDForProfile (c *gin.Context) {
-	value, exist := c.Get("userID")
-	if !exist {
-		log.Println("UserIDがありません:ResponseUserDeail")
-	}
-	userId, ok := value.(string)
-	if !ok {
-		log.Println("Invalid UserID Type")
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid userid",
+
+func (h *UserHandler) RegisterUserNameHandle (c *gin.Context) {
+	var userName models.RequestUserName
+
+	if err := c.ShouldBindJSON(&userName); err != nil {
+		c.JSON(http.StatusBadRequest,gin.H{
+			"error":"invalid json",
 		})
 		return
 	}
+	userID,err := utils.VaridateUserID(c)
+	if err != nil {
+		log.Println("err:",err)
+
+		c.JSON(http.StatusInternalServerError,gin.H{
+			"error":err,
+		})
+		return
+	}
+
+	user,err := h.serv.GetUserByUserID(userID)
+	if err != nil {
+		log.Println("err:",err)
+		c.JSON(http.StatusInternalServerError,gin.H{
+			"error":err,
+		})
+		return
+	}
+
+	err = h.serv.ResisterUserName(user,userName.Name)
+	if err != nil {
+		log.Println("err:",err)
+
+		c.JSON(http.StatusInternalServerError,gin.H{
+			"error":err,
+		})
+	}
+
 	c.JSON(http.StatusOK,gin.H{
 		"message":"success",
-		"userid":userId,
 	})
+	
+	
+}
+
+
+func (h *UserHandler) ResponseUserProfile (c *gin.Context) {
+
+	userID,err := utils.VaridateUserID(c)
+	if err != nil {
+		log.Println("err:",err)
+
+		c.JSON(http.StatusInternalServerError,gin.H{
+			"error":err,
+		})
+		return
+	}
+
+	user,err := h.serv.GetUserByUserID(userID)
+	if err != nil {
+		log.Println("err:",err)
+		c.JSON(http.StatusInternalServerError,gin.H{
+			"error":err,
+		})
+		return
+	}
+
+
+	c.JSON(http.StatusOK,
+		 gin.H{"name":user.Name,"email":user.Email},
+	)
 
 }

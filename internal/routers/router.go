@@ -43,8 +43,11 @@ func NewAppRouter(app *containers.AppContainer) *gin.Engine {
 	user.POST("/logout",app.UserHandler.Logout)
 	user.GET("/ckeckauth",utils.CkeckAuth)
 
+	authUser.GET("/profile",app.UserHandler.ResponseUserProfile)
 	authUser.GET("/userdetail",app.UserHandler.ResponseUserDetail)
-	authUser.GET("profile",app.UserHandler.ResponseUserIDForProfile)
+    authUser.POST("/userdetail",app.UserHandler.RegisterUserDetail)
+	authUser.POST("/username",app.UserHandler.RegisterUserNameHandle)
+
 
 	classes := router.Group("/classes")
 	classes.Use(auth.AuthMiddleware())

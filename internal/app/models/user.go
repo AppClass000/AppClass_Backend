@@ -5,8 +5,8 @@ import "time"
 type Users struct {
     ID        uint      `gorm:"primaryKey;autoIncrement"` 
     UserID    string    `gorm:"column:user_id;unique"`
-    Name      string    `gorm:"column:name;not null"`
     Email     string    `gorm:"column:email;unique;not null"`
+	Name     string    `gorm:"column:name"`
     Password  string    `gorm:"column:password;not null"`
     CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
     UpdatedAt time.Time `gorm:"column:updated_at;autoUpdateTime"`
@@ -30,4 +30,8 @@ type ReqUsers struct {
 
 type RequestUserID struct {
 	ReqUserID string
+}
+
+type RequestUserName struct {
+	Name string `json:"name"`
 }

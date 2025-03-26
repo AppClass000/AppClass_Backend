@@ -29,6 +29,7 @@ func (h *ClassesHandler) ViewUserClasses(c *gin.Context) {
 		})
 		return
 	}
+	log.Println("this is filter:",filter)
 
 	classes := h.serv.ResponseUserClasses(&filter)
 

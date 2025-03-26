@@ -4,6 +4,7 @@ import (
 	"backend/internal/app/repositories"
 	"backend/internal/database"
 	"backend/pkg/auth"
+	"fmt"
 	"log"
 	"net/http"
 	"github.com/gin-gonic/gin"
@@ -57,4 +58,18 @@ func CkeckAuth(c *gin.Context) {
 	c.JSON(http.StatusOK,gin.H{
 		"message":"authorized",
 	})
+}
+
+func VaridateUserID (c *gin.Context) (string,error){
+	value, exist := c.Get("userID")
+	if !exist {
+		log.Println("UserIDがありません:ResponseUserDeail")
+	}
+	userId, ok := value.(string)
+	if !ok {
+		log.Println("Invalid UserID Type")
+		return "",fmt.Errorf("error varidate userid")
+	}
+
+	return userId ,nil
 }
