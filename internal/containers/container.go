@@ -29,11 +29,11 @@ func NewAppContainer() *AppContainer {
 	classeshandler := handlers.NewClassesHandler(classesservice)
 
 	return &AppContainer{
-		UserRepository: userrepository,
-		UserServise:    userservise,
-		UserHandler:    userhandler,
+		UserRepository:    userrepository,
+		UserServise:       userservise,
+		UserHandler:       userhandler,
 		ClassesRepository: classesrepository,
-		ClassesServise: classesservice,
-		ClassesHandler: classeshandler,
+		ClassesServise:    classesservice,
+		ClassesHandler:    classeshandler,
 	}
 }

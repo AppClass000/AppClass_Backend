@@ -39,7 +39,6 @@ func (h *UserHandler) SignUp(c *gin.Context) {
 		return
 	}
 
-
 	JWTtoken, err := h.serv.ResponseSignUpJTW(input.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -54,11 +53,10 @@ func (h *UserHandler) SignUp(c *gin.Context) {
 	})
 }
 
-
 func (h *UserHandler) Login(c *gin.Context) {
 	var ReqUser struct {
-		Email    string  `json:"email"`
-		Password string  `json':"password"`
+		Email    string `json:"email"`
+		Password string `json':"password"`
 	}
 
 	if err := c.ShouldBindJSON(&ReqUser); err != nil {
@@ -66,7 +64,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid User Request",
 		})
-		return 
+		return
 	}
 
 	JWTtoken, err := h.serv.ResponseUserIDJWT(ReqUser.Email, ReqUser.Password)
@@ -82,18 +80,17 @@ func (h *UserHandler) Login(c *gin.Context) {
 	})
 }
 
-
 func (h *UserHandler) Logout(c *gin.Context) {
 	c.SetCookie("jwt", "", 0, "/", "localhost", false, true)
-	c.JSON(http.StatusOK,gin.H{
-		"message":"logout success",
+	c.JSON(http.StatusOK, gin.H{
+		"message": "logout success",
 	})
 }
 
-func (h *UserHandler) RegisterUserDetail (c *gin.Context) {
+func (h *UserHandler) RegisterUserDetail(c *gin.Context) {
 	var userdetail models.UserDetail
 
-	userID,err := utils.VaridateUserID(c)
+	userID, err := utils.VaridateUserID(c)
 	if err != nil {
 		log.Println("Invalid UserID Type")
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -108,23 +105,22 @@ func (h *UserHandler) RegisterUserDetail (c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid userdetail",
 		})
-		return 
+		return
 	}
-	err = h.serv.RegisterUserDetail(&userdetail,userID)
+	err = h.serv.RegisterUserDetail(&userdetail, userID)
 	if err != nil {
 		log.Println(err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid userdetail",
 		})
-		return 
+		return
 	}
-	
-	c.JSON(http.StatusOK,gin.H{
-		"message":"success",
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
 	})
 
 }
-
 
 func (h *UserHandler) ResponseUserDetail(c *gin.Context) {
 	value, exist := c.Get("userID")
@@ -139,7 +135,7 @@ func (h *UserHandler) ResponseUserDetail(c *gin.Context) {
 		})
 		return
 	}
-	userDetail,err := utils.GetUserDetail(userId)
+	userDetail, err := utils.GetUserDetail(userId)
 	if err != nil {
 		log.Println("missing get userDetail by userid:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -148,83 +144,79 @@ func (h *UserHandler) ResponseUserDetail(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK,gin.H{
-		"message":"success",
-		"userdetail":userDetail,
+	c.JSON(http.StatusOK, gin.H{
+		"message":    "success",
+		"userdetail": userDetail,
 	})
-	
+
 }
 
-
-func (h *UserHandler) RegisterUserNameHandle (c *gin.Context) {
+func (h *UserHandler) RegisterUserNameHandle(c *gin.Context) {
 	var userName models.RequestUserName
 
 	if err := c.ShouldBindJSON(&userName); err != nil {
-		c.JSON(http.StatusBadRequest,gin.H{
-			"error":"invalid json",
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid json",
 		})
 		return
 	}
-	userID,err := utils.VaridateUserID(c)
+	userID, err := utils.VaridateUserID(c)
 	if err != nil {
-		log.Println("err:",err)
+		log.Println("err:", err)
 
-		c.JSON(http.StatusInternalServerError,gin.H{
-			"error":err,
-		})
-		return
-	}
-
-	user,err := h.serv.GetUserByUserID(userID)
-	if err != nil {
-		log.Println("err:",err)
-		c.JSON(http.StatusInternalServerError,gin.H{
-			"error":err,
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
 		})
 		return
 	}
 
-	err = h.serv.ResisterUserName(user,userName.Name)
+	user, err := h.serv.GetUserByUserID(userID)
 	if err != nil {
-		log.Println("err:",err)
+		log.Println("err:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+		return
+	}
 
-		c.JSON(http.StatusInternalServerError,gin.H{
-			"error":err,
+	err = h.serv.ResisterUserName(user, userName.Name)
+	if err != nil {
+		log.Println("err:", err)
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
 		})
 	}
 
-	c.JSON(http.StatusOK,gin.H{
-		"message":"success",
+	c.JSON(http.StatusOK, gin.H{
+		"message": "success",
 	})
-	
-	
+
 }
 
+func (h *UserHandler) ResponseUserProfile(c *gin.Context) {
 
-func (h *UserHandler) ResponseUserProfile (c *gin.Context) {
-
-	userID,err := utils.VaridateUserID(c)
+	userID, err := utils.VaridateUserID(c)
 	if err != nil {
-		log.Println("err:",err)
+		log.Println("err:", err)
 
-		c.JSON(http.StatusInternalServerError,gin.H{
-			"error":err,
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
 		})
 		return
 	}
 
-	user,err := h.serv.GetUserByUserID(userID)
+	user, err := h.serv.GetUserByUserID(userID)
 	if err != nil {
-		log.Println("err:",err)
-		c.JSON(http.StatusInternalServerError,gin.H{
-			"error":err,
+		log.Println("err:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
 		})
 		return
 	}
-
 
 	c.JSON(http.StatusOK,
-		 gin.H{"name":user.Name,"email":user.Email},
+		gin.H{"name": user.Name, "email": user.Email},
 	)
 
 }

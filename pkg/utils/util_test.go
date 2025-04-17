@@ -3,10 +3,10 @@ package utils
 import (
 	"testing"
 
+	"backend/pkg/auth"
 	"log"
 	"os"
 	"time"
-	"backend/pkg/auth"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"

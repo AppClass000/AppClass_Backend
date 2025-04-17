@@ -1,23 +1,21 @@
 package auth
 
-
 import (
 	"backend/config"
-	
+
 	"fmt"
 	"log"
 	"time"
+
 	"github.com/golang-jwt/jwt/v5"
-
 )
-
 
 func GenerateJWT(userID string) (string, error) {
 
 	config.LoadEnv()
 
 	log.Println("これがuserid", userID)
-	var jwtSecretKey = config.GetEnv("JWTSECRETKEY","")
+	var jwtSecretKey = config.GetEnv("JWTSECRETKEY", "")
 	if jwtSecretKey == "" {
 		log.Fatalf("秘密鍵が取得できませんでした")
 	}
@@ -54,11 +52,11 @@ func CreateJWTResponse(userID string) (bool, string) {
 func VaridateJWT(tokenString string) bool {
 	config.LoadEnv()
 
-	token, err := jwt.Parse(tokenString,func(t *jwt.Token) (interface{}, error) {
-		return []byte(config.GetEnv("JWTSECRETKEY","")),nil
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		return []byte(config.GetEnv("JWTSECRETKEY", "")), nil
 	})
-	if err != nil || !token.Valid{
-		log.Println("token parse error:",err)
+	if err != nil || !token.Valid {
+		log.Println("token parse error:", err)
 		return false
 	}
 	return true

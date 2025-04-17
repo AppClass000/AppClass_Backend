@@ -1,6 +1,5 @@
 # 環境変数などの秘密情報
-.env
-backen/config/
+
 
 # コンパイル済みバイナリ
 backend/backend.exe
@@ -11,8 +10,6 @@ backend/*.out
 build/
 node_modules/
 
-# Docker 関連
-Dockerfile
 
 # Go の一時ファイル（キャッシュ）
 *.test

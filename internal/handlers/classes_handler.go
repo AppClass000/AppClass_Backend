@@ -29,7 +29,7 @@ func (h *ClassesHandler) ViewUserClasses(c *gin.Context) {
 		})
 		return
 	}
-	log.Println("this is filter:",filter)
+	log.Println("this is filter:", filter)
 
 	classes := h.serv.ResponseUserClasses(&filter)
 
@@ -52,7 +52,7 @@ func (h *ClassesHandler) ViewUserClassesByUserID(c *gin.Context) {
 		})
 		return
 	}
-	userDetail,err := utils.GetUserDetail(userId)
+	userDetail, err := utils.GetUserDetail(userId)
 	if err != nil {
 		log.Println("missing get userDetail by userid:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -61,10 +61,10 @@ func (h *ClassesHandler) ViewUserClassesByUserID(c *gin.Context) {
 		return
 	}
 	userClasses := h.serv.ResponseUserClasses(userDetail)
-	
-	c.JSON(http.StatusOK,gin.H{
-		"message":"success",
-		"userclasses":userClasses,
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":     "success",
+		"userclasses": userClasses,
 	})
 
 }
@@ -91,19 +91,19 @@ func (h *ClassesHandler) RegisterClass(c *gin.Context) {
 			"error": "missing Bind userClass",
 		})
 		return
-	}	
+	}
 	userClass.UserID = userId
 
 	err = h.serv.RegisterUserClasses(&userClass)
 	if err != nil {
 		log.Println("occur error in registerUserClasses")
 		c.JSON(204, gin.H{
-			"error":     "This class is registered ",
+			"error": "This class is registered ",
 		})
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":     "registered success",
+		"message": "registered success",
 	})
 }
 
@@ -123,7 +123,7 @@ func (h *ClassesHandler) DeleteRegisteredClass(c *gin.Context) {
 	if err != nil {
 		log.Println("error in  deleteRegisteredClass:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":"error in  deleteRegisteredClass:",
+			"error": "error in  deleteRegisteredClass:",
 		})
 		return
 	}
@@ -132,7 +132,6 @@ func (h *ClassesHandler) DeleteRegisteredClass(c *gin.Context) {
 		"message": "success delete  userClass",
 	})
 }
-
 
 func (h *ClassesHandler) ViewUserSchedule(c *gin.Context) {
 	value, exist := c.Get("userID")
@@ -170,20 +169,18 @@ func (h *ClassesHandler) CheckToolAPI(c *gin.Context) {
 		return
 	}
 
-	result,registeredList,err :=h.serv.CheckRegiseredClasses(userId)
+	result, registeredList, err := h.serv.CheckRegiseredClasses(userId)
 	if err != nil {
-		log.Println("error in CheckRegisteredClasses",err)
-		c.JSON(http.StatusInternalServerError,gin.H{
-			"error":err,
+		log.Println("error in CheckRegisteredClasses", err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
 		})
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":           "success",
-		"checktoolresult":result,
-		"registeredlist": registeredList,
+		"message":         "success",
+		"checktoolresult": result,
+		"registeredlist":  registeredList,
 	})
 
 }
-
-

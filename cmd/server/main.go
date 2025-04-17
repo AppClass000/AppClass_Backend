@@ -1,12 +1,11 @@
 package main
 
 import (
-
 	"backend/internal/containers"
 	"backend/internal/database"
 	"backend/internal/routers"
+	"os"
 	"log"
-
 )
 
 func main() {
@@ -15,7 +14,13 @@ func main() {
 
 	router := routers.NewAppRouter(app)
 
-	port := ":8080"
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	
+	
+
 	if err := router.Run(port); err != nil {
 		log.Fatalf("サーバー起動に失敗: %v", err)
 	}

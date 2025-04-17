@@ -8,6 +8,9 @@ RUN go mod download
 
 COPY . .
 
+COPY ./config/.env /app/config/.env
+
+
 RUN go build -o main ./cmd/server  
 
 EXPOSE 8080
