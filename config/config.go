@@ -8,13 +8,13 @@ import (
 )
 
 func LoadEnv() {
-	err := godotenv.Load("/app/config/.env")
-	if err != nil {
-		log.Fatalf("環境変数の読み込みに失敗しました %v", err)
+	if os.Getenv("RAILWAY_ENVIRONMENT") == "" {
+		err := godotenv.Load("/app/config/.env")
+		if err != nil {
+			log.Fatalf("環境変数の読み込みに失敗しました %v", err)
+		}
 	}
-
 }
-
 func GetEnv(key string, defaultvalue string) string {
 	value, exist := os.LookupEnv(key)
 	if !exist {
