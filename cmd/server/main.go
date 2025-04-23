@@ -23,5 +23,6 @@ func main() {
 	if err := router.Run(":" + port); err != nil {
 		log.Fatalf("サーバー起動に失敗: %v", err)
 	}
-
+	log.Println("succsess run server")
+ 
 }
