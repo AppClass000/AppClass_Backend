@@ -18,18 +18,19 @@ var (
 var err error
 
 func InitDB() {
-	once.Do(func() {
+	once.Do(func() {	
+				
+		    user := os.Getenv("MYSQLUSER")
+			password := os.Getenv("MYSQLPASSWORD")
 		    host := os.Getenv("MYSQLHOST")
 			port := os.Getenv("MYSQLPORT")
-			user := os.Getenv("MYSQLUSER")
-			password := os.Getenv("MYSQLPASSWORD")
 			dbname := os.Getenv("MYSQLDATABASE")
+
+			dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",user, password, host, port, dbname)
 			
-		dsn := fmt.Sprintf(
-			"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",host,port,user,password,dbname,
-		)
 		
-		log.Println("database connect write:", dsn)
+
+		log.Println("database connect write:  %s", dsn)
 
 		DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 		if err != nil {
