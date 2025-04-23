@@ -10,7 +10,6 @@ import (
 )
 
 func NewAppRouter(app *containers.AppContainer) *gin.Engine {
-	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	
 
