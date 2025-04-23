@@ -10,11 +10,13 @@ import (
 )
 
 func NewAppRouter(app *containers.AppContainer) *gin.Engine {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+	
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
-			"http://localhost:3000",
+			"https://appclass-frontend-production.up.railway.app/",
 		},
 
 		AllowMethods: []string{
