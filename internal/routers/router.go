@@ -15,7 +15,7 @@ func NewAppRouter(app *containers.AppContainer) *gin.Engine {
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
-			"https://appclass-frontend-production.up.railway.app/",
+			"https://appclass.up.railway.app",
 		},
 
 		AllowMethods: []string{
