@@ -17,84 +17,85 @@ type UserHandler struct {
 func NewUserHandler(serv services.UserServise) UserHandler {
 	return UserHandler{serv: serv}
 }
-
 func (h *UserHandler) SignUp(c *gin.Context) {
-	var input models.Users
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
-		return
-	}
+    var input models.Users
+    if err := c.ShouldBindJSON(&input); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	input.UserID = utils.GenerateUniqueUserID()
-	if input.UserID == "" {
-		log.Printf("useridがありません")
-		return
-	}
+    input.UserID = utils.GenerateUniqueUserID()
+    if input.UserID == "" {
+        log.Printf("useridがありません")
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate userID"})
+        return
+    }
 
-	if err := h.serv.ResisterUser(&input); err != nil {
-		log.Println("ユーザー登録エラー")
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "missing register User to datadase",
-		})
-		return
-	}
+    if err := h.serv.ResisterUser(&input); err != nil {
+        log.Println("ユーザー登録エラー:", err)
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to register user",
+        })
+        return
+    }
 
-	JWTtoken, err := h.serv.ResponseSignUpJTW(input.UserID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "missing JWT generation",
-		})
-		return
-	}
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "jwt",
-		Value:    JWTtoken,
-		Path:     "/",
-		Domain:   "appclass.up.railway.app",
-		MaxAge:   3600,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
-	})
-	
+    JWTtoken, err := h.serv.ResponseSignUpJTW(input.UserID)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "error": "Failed to generate JWT",
+        })
+        return
+    }
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success Generate JWT and registered User",
-	})
+    http.SetCookie(c.Writer, &http.Cookie{
+        Name:     "jwt",
+        Value:    JWTtoken,
+        Path:     "/",
+        Domain:   "appclass.up.railway.app",
+        MaxAge:   3600,
+        HttpOnly: true,
+        Secure:   true,
+        SameSite: http.SameSiteNoneMode,
+    })
+
+    c.JSON(http.StatusOK, gin.H{
+        "message": "Successfully registered and JWT issued",
+    })
 }
 
 func (h *UserHandler) Login(c *gin.Context) {
-	var ReqUser struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
+    var ReqUser struct {
+        Email    string `json:"email"`
+        Password string `json:"password"`
+    }
 
-	if err := c.ShouldBindJSON(&ReqUser); err != nil {
-		print("missign bind in ReqUser:",err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid User Request",
-		})
-		return
-	}
+    if err := c.ShouldBindJSON(&ReqUser); err != nil {
+        log.Println("Error binding JSON:", err)
+        c.JSON(http.StatusBadRequest, gin.H{
+            "error": "Invalid user request",
+        })
+        return
+    }
 
-	JWTtoken, err := h.serv.ResponseUserIDJWT(ReqUser.Email, ReqUser.Password)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "missing JWT generation",
-		})
-		return
-	}
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "jwt",
-		Value:    JWTtoken,
-		Path:     "/",
-		Domain:   "appclass.up.railway.app",
-		MaxAge:   3600,
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
-	})
-	
+    JWTtoken, err := h.serv.ResponseUserIDJWT(ReqUser.Email, ReqUser.Password)
+    if err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{
+            "error": "Invalid email or password",
+        })
+        return
+    }
+
+    http.SetCookie(c.Writer, &http.Cookie{
+        Name:     "jwt",
+        Value:    JWTtoken,
+        Path:     "/",
+        Domain:   "appclass.up.railway.app",
+        MaxAge:   3600,
+        HttpOnly: true,
+        Secure:   true,
+        SameSite: http.SameSiteNoneMode,
+    })
+
     c.JSON(http.StatusOK, gin.H{
         "message": "Successfully logged in and JWT issued",
     })
