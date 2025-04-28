@@ -46,7 +46,17 @@ func (h *UserHandler) SignUp(c *gin.Context) {
 		})
 		return
 	}
-	c.SetCookie("jwt", JWTtoken, 3600, "/", "appclass.up.railway.app", false, true)
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "jwt",
+		Value:    JWTtoken,
+		Path:     "/",
+		Domain:   "appclass.up.railway.app",
+		MaxAge:   3600,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+	})
+	
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success Generate JWT and registered User",
@@ -74,7 +84,17 @@ func (h *UserHandler) Login(c *gin.Context) {
 		})
 		return
 	}
-	c.SetCookie("jwt", JWTtoken, 3600, "/", "appclass.up.railway.app", true, true)
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "jwt",
+		Value:    JWTtoken,
+		Path:     "/",
+		Domain:   "appclass.up.railway.app",
+		MaxAge:   3600,
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+	})
+	
 	c.JSON(http.StatusOK, gin.H{
 		"message": "success Generate JWT",
 	})
