@@ -66,11 +66,11 @@ func (h *UserHandler) SignUp(c *gin.Context) {
 func (h *UserHandler) Login(c *gin.Context) {
 	var ReqUser struct {
 		Email    string `json:"email"`
-		Password string `json':"password"`
+		Password string `json:"password"`
 	}
 
 	if err := c.ShouldBindJSON(&ReqUser); err != nil {
-		log.Println(ReqUser)
+		print("missign bind in ReqUser:",err)
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Invalid User Request",
 		})
@@ -95,9 +95,9 @@ func (h *UserHandler) Login(c *gin.Context) {
 		SameSite: http.SameSiteNoneMode,
 	})
 	
-	c.JSON(http.StatusOK, gin.H{
-		"message": "success Generate JWT",
-	})
+    c.JSON(http.StatusOK, gin.H{
+        "message": "Successfully logged in and JWT issued",
+    })
 }
 
 func (h *UserHandler) Logout(c *gin.Context) {
